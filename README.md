@@ -30,7 +30,8 @@ Creating structured, formatted presentations and datasets manually is a massive 
 Simply type a topic, choose your detail level, and let the agent draft, format, and export native `.pptx` and `.xlsx` files ready for your next meeting.
 
 <div align="center">
-  <img src="[Link to a GIF or Screenshot of your app running]" alt="AIDeck App Demo" width="800">
+  <img width="1918" height="977" alt="Screenshot 2026-04-10 000210" src="https://github.com/user-attachments/assets/eb0732e9-e105-459e-9baf-f29ebce2dfbb" />
+
 </div>
 
 ---
