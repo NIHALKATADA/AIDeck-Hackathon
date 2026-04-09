@@ -1,6 +1,6 @@
 streamlit
-openai
+groq
+pydantic
 python-pptx
 pandas
 openpyxl
-pydantic
