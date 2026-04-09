@@ -14,9 +14,17 @@ An intelligent, AI-powered agent that instantly drafts and formats professional 
 * **File Generation:** `python-pptx`, `pandas`, `openpyxl`
 * **Data Validation:** Pydantic
 
-## 🚀 How to Run Locally
+## 🚀 Detailed Setup & Installation
 
-1. **Clone the repository:**
-   ```bash
-   git clone [https://github.com/YOUR_USERNAME/AIDeck-Hackathon.git](https://github.com/YOUR_USERNAME/AIDeck-Hackathon.git)
-   cd AIDeck-Hackathon
+Follow these steps to safely run AIDeck locally on your machine.
+
+### 1. Prerequisites
+* Ensure you have **Python 3.9+** installed on your system.
+* Ensure you have **Git** installed.
+* You will need a free API key from [Groq Cloud](https://console.groq.com/).
+
+### 2. Clone the Repository
+Open your terminal and download the code:
+```bash
+git clone [https://github.com/YOUR_USERNAME/AIDeck-Hackathon.git](https://github.com/YOUR_USERNAME/AIDeck-Hackathon.git)
+cd AIDeck-Hackathon
