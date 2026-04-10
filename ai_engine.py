@@ -21,11 +21,10 @@ class AIData(BaseModel):
 def generate_content(topic, num_slides, num_rows, detail, api_key):
     client = Groq(api_key=api_key)
     
-    # Updated prompt to explicitly ask for image descriptions
     prompt = f"""
     Create a professional presentation and dataset about '{topic}'.
     Presentation: {num_slides} slides. For each slide, provide a title, 3-4 bullets, 
-    and a 'image_prompt' that describes a professional visual (e.g., 'Minimalist 3D icon of a rocket launching, corporate blue style').
+    and a 'image_prompt' that describes a professional visual (e.g., 'A 3D isometric illustration of a smart city, blue and white colors').
     Dataset: {num_rows} rows of sample data with 3 columns.
     Return ONLY valid JSON matching this structure:
     {{
