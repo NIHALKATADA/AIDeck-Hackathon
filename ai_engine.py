@@ -7,7 +7,7 @@ import json
 class Slide(BaseModel):
     title: str
     bullets: list[str]
-    image_prompt: str  # New field for AI image generation
+    image_prompt: str  # AI generates a descriptive prompt for the image
 
 class DataRow(BaseModel):
     column1: str
@@ -21,10 +21,11 @@ class AIData(BaseModel):
 def generate_content(topic, num_slides, num_rows, detail, api_key):
     client = Groq(api_key=api_key)
     
+    # Updated prompt to explicitly ask for image descriptions
     prompt = f"""
     Create a professional presentation and dataset about '{topic}'.
     Presentation: {num_slides} slides. For each slide, provide a title, 3-4 bullets, 
-    and a highly descriptive 'image_prompt' (e.g., 'A high-tech futuristic laboratory with blue lighting, 4k').
+    and a 'image_prompt' that describes a professional visual (e.g., 'Minimalist 3D icon of a rocket launching, corporate blue style').
     Dataset: {num_rows} rows of sample data with 3 columns.
     Return ONLY valid JSON matching this structure:
     {{

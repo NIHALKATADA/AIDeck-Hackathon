@@ -18,6 +18,7 @@ def create_pptx(presentation_data, topic_name, theme_name, font_name, title_colo
     
     theme_title_color = hex_to_rgb(title_color_hex)
     theme_bg_color = hex_to_rgb(bg_color_hex)
+    # High-contrast text for Dark Executive
     theme_text_color = RGBColor(255, 255, 255) if theme_name == "Dark Executive" else hex_to_rgb(text_color_hex)
 
     def apply_slide_background(slide, color_rgb):
@@ -46,28 +47,31 @@ def create_pptx(presentation_data, topic_name, theme_name, font_name, title_colo
         t_p.font.name, t_p.font.size, t_p.font.bold = font_name, Pt(36), True
         t_p.font.color.rgb = theme_title_color
 
-        # --- IMAGE GENERATION BLOCK ---
+        # --- AI IMAGE GENERATION ---
         if slide_data.image_prompt:
+            # Using Pollinations.ai for high-speed, free image generation
             img_url = f"https://image.pollinations.ai/prompt/{slide_data.image_prompt.replace(' ', '%20')}?width=1024&height=768&nologo=true"
             try:
                 img_res = requests.get(img_url, timeout=10)
                 if img_res.status_code == 200:
                     img_data = io.BytesIO(img_res.content)
-                    # Place image on the right side
-                    slide.shapes.add_picture(img_data, Inches(8), Inches(1.8), Inches(4.5), Inches(3.5))
+                    # Position image on the right (16:9 layout)
+                    slide.shapes.add_picture(img_data, Inches(8.2), Inches(1.8), Inches(4.5), Inches(3.5))
             except:
-                pass 
+                pass # Silently fail if image cannot be fetched to prevent crash
 
-        # Bullets (Adjusted width to make room for image)
+        # Bullets (Shifted left to make room for image)
         start_y = Inches(1.6)
-        for i, bullet in enumerate(slide_data.bullets[:4]):
-            y_pos = start_y + (i * Inches(1.2))
-            card = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), y_pos, Inches(6.5), Inches(1.0))
+        for i, bullet in enumerate(slide_data.bullets[:5]):
+            y_pos = start_y + (i * Inches(1.1))
+            # Create a card for the bullet
+            card = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), y_pos, Inches(7.0), Inches(0.9))
             card.fill.solid()
             card.fill.fore_color.rgb = hex_to_rgb("#FFFFFF") if theme_name == "Breeze" else hex_to_rgb("#1E293B")
             card.line.fill.background()
             
-            tb = slide.shapes.add_textbox(Inches(1.0), y_pos + Inches(0.1), Inches(6.1), Inches(0.8))
+            # Text inside card
+            tb = slide.shapes.add_textbox(Inches(1.0), y_pos + Inches(0.1), Inches(6.6), Inches(0.7))
             p = tb.text_frame.paragraphs[0]
             p.text = bullet
             p.font.name, p.font.size, p.font.color.rgb = font_name, Pt(14), theme_text_color

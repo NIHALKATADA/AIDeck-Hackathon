@@ -4,3 +4,4 @@ pydantic
 python-pptx
 pandas
 openpyxl
+requests
