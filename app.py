@@ -23,7 +23,6 @@ def render_cover_preview(title, theme_data, style):
     bg_col = theme_data.get("bg", "#FFFFFF")
     title_col = theme_data.get("color", "#0369A1")
     
-    # STYLE 1: Modern Circle
     if style == "Modern Circle":
         html_string = f"""
         <div style="background-color: {bg_col}; padding: 30px; border-radius: 12px; border: 1px solid #ddd; width: 100%; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; font-family: sans-serif; position: relative; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden;">
@@ -31,7 +30,6 @@ def render_cover_preview(title, theme_data, style):
             <h1 style="color: {title_col}; font-size: 2.5rem; text-align: center; z-index: 1; margin: 0;">{title}</h1>
         </div>
         """
-    # STYLE 2: Split Accent
     elif style == "Split Accent":
         html_string = f"""
         <div style="background-color: {bg_col}; padding: 30px; border-radius: 12px; border: 1px solid #ddd; width: 100%; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: flex-start; padding-left: 10%; font-family: sans-serif; position: relative; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden;">
@@ -39,7 +37,6 @@ def render_cover_preview(title, theme_data, style):
             <h1 style="color: {title_col}; font-size: 2.5rem; text-align: left; z-index: 1; margin: 0;">{title}</h1>
         </div>
         """
-    # STYLE 3: Top Banner
     else: 
         html_string = f"""
         <div style="background-color: {bg_col}; padding: 30px; border-radius: 12px; border: 1px solid #ddd; width: 100%; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; font-family: sans-serif; position: relative; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden;">
@@ -53,17 +50,15 @@ def render_live_preview(title, bullets, theme_name, theme_data):
     bg_col = theme_data.get("bg", "#FFFFFF")
     title_col = theme_data.get("color", "#0369A1")
     text_col = theme_data.get("text", "#334155")
-    
     bullet_html = "".join([f"<li style='color:{text_col}; margin-bottom:10px;'>{b}</li>" for b in bullets])
     
-    html_string = f"""
+    return f"""
     <div style="background-color: {bg_col}; padding: 30px; border-radius: 12px; border: 1px solid #ddd; width: 100%; aspect-ratio: 16/9; overflow-y: auto; font-family: sans-serif; position: relative; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
         <div style="width: 100%; height: 8px; background-color: {title_col}; position: absolute; top: 0; left: 0; border-radius: 12px 12px 0 0;"></div>
         <h2 style="color: {title_col}; margin-top: 5px; font-size: 1.5rem; line-height: 1.2;">{title}</h2>
         <ul style="padding-left: 20px; font-size: 0.95rem; line-height: 1.5;">{bullet_html}</ul>
     </div>
     """
-    return html_string
 
 # 4. SIDEBAR
 with st.sidebar:
@@ -75,7 +70,6 @@ with st.sidebar:
     st.markdown("---")
     detail_level = st.radio("Level of Detail", ["Concise", "Standard", "Detailed"], index=1, horizontal=True)
     
-    st.markdown("---")
     num_slides = st.slider("Number of Slides", 3, 10, 5) if wants_ppt else 5
     num_rows = st.slider("Dataset Rows", 5, 20, 10) if wants_excel else 10
     
@@ -117,29 +111,28 @@ else:
     if wants_ppt: tab_list += ["📝 Content", "🎨 Themes"]
     if wants_excel: tab_list += ["📊 Excel"]
     
+    # --- FAIL-SAFE CHECK ---
+    if not tab_list:
+        st.warning("⚠️ Please select at least one output type in the sidebar to view your draft.")
+        st.stop()
+    
     tabs = st.tabs(tab_list)
     t_ptr = 0
+    
     if wants_ppt:
         with tabs[t_ptr]:
-            
-            # --- UPDATED COVER SLIDE PREVIEW ---
             with st.expander("Cover Slide (Starting Card)", expanded=True):
                 c1, c2 = st.columns([1, 1.2])
                 with c1:
-                    st.info("This is the title slide of your presentation.")
                     new_deck_title = st.text_input("Main Title", value=st.session_state.topic, key="deck_title_input")
                     st.session_state.topic = new_deck_title 
-                    
-                    st.markdown("---")
                     selected_cover = st.radio("Cover Style Layout", ["Modern Circle", "Split Accent", "Top Banner"], index=["Modern Circle", "Split Accent", "Top Banner"].index(st.session_state.cover_style))
                     st.session_state.cover_style = selected_cover
-                    
                 with c2:
                     st.markdown(render_cover_preview(new_deck_title, THEMES[st.session_state.active_theme], selected_cover), unsafe_allow_html=True)
             
             st.divider()
 
-            # --- REGULAR SLIDES ---
             edited_slides = []
             for i, slide in enumerate(st.session_state.ai_data.presentation[:num_slides]):
                 with st.expander(f"Slide {i+1}: {slide.title}", expanded=(i==0)):
@@ -148,21 +141,17 @@ else:
                         v_key = st.session_state.draft_version
                         nt = st.text_input("Title", value=slide.title, key=f"t_{v_key}_{i}")
                         nb_raw = st.text_area("Bullets", value="\n".join(slide.bullets), key=f"b_{v_key}_{i}", height=180)
-                        
                         nb = [b.strip() for b in nb_raw.split("\n") if b.strip()]
                         edited_slides.append(Slide(title=nt, bullets=nb))
                     with c2:
                         st.markdown(render_live_preview(nt, nb, st.session_state.active_theme, THEMES[st.session_state.active_theme]), unsafe_allow_html=True)
         t_ptr += 1
+        
         with tabs[t_ptr]:
             tcols = st.columns(3)
             for i, (name, style) in enumerate(THEMES.items()):
                 with tcols[i%3]:
-                    st.markdown(f"""
-                        <div style="background-color:{style['bg']}; padding:20px; border-radius:10px; border:2px solid {style['color']}; margin-bottom:10px; text-align:center;">
-                            <h4 style="color:{style['color']}; font-family:{style['font']}; margin:0;">{name}</h4>
-                        </div>
-                    """, unsafe_allow_html=True)
+                    st.markdown(f"<div style='background-color:{style['bg']}; padding:20px; border-radius:10px; border:2px solid {style['color']}; text-align:center;'><h4 style='color:{style['color']};'>{name}</h4></div>", unsafe_allow_html=True)
                     if st.session_state.active_theme == name:
                         st.button("✅ Active", key=f"btn_active_{name}", disabled=True, use_container_width=True)
                     else:
@@ -190,15 +179,11 @@ else:
             for key in list(st.session_state.keys()):
                 if key.startswith("t_") or key.startswith("b_"):
                     del st.session_state[key]
-
             st.session_state.ai_data = None
             st.session_state.draft_version += 1 
-            
-            with st.spinner(f"Refining as {detail_level}..."):
+            with st.spinner("Refining..."):
                 res = generate_content(st.session_state.topic, num_slides, num_rows, detail_level, api_key)
-                if isinstance(res, str):
-                    st.error(res)
-                else:
+                if not isinstance(res, str):
                     st.session_state.ai_data = res
                     st.rerun()
 
