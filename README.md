@@ -76,3 +76,14 @@ Follow these steps to set up a local development environment.
 ```bash
 git clone [https://github.com/NIHALKATADA/AIDeck-Hackathon.git](https://github.com/NIHALKATADA/AIDeck-Hackathon.git)
 cd AIDeck-Hackathon
+
+🚀 Getting Started
+After cloning the repository, follow these steps to set up the project locally:
+1. Create a Virtual EnvironmentIt is best practice to isolate your project dependencies to avoid conflicts with other Python projects on your Lenovo LOQ.Bashpython -m venv venv
+2. Activate the EnvironmentWindows:Bashvenv\Scripts\activate
+Mac/Linux:Bashsource venv/bin/activate
+3. Install Dependencies
+Install the core "File Factory" libraries, including groq for AI inference and python-pptx for slide generation.Bashpip install -r requirements.txt
+4. Set Up Your API KeysAIDeck requires a Groq API key to function. Create a folder named .streamlit and a file inside it named secrets.toml.Path: .streamlit/secrets.tomlContent:Ini, TOMLGROQ_API_KEY = "YOUR_GROQ_API_KEY_HERE"
+5. Run the Application
+Launch the Streamlit frontend to start the two-stage refinement loop.Bashstreamlit run app.py
