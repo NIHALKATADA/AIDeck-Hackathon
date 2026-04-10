@@ -74,5 +74,5 @@ Follow these steps to set up a local development environment.
 
 ### 2. Clone the Repository
 ```bash
-git clone [https://github.com/YOUR_USERNAME/AIDeck-Hackathon.git](https://github.com/YOUR_USERNAME/AIDeck-Hackathon.git)
+git clone [https://github.com/NIHALKATADA/AIDeck-Hackathon.git](https://github.com/NIHALKATADA/AIDeck-Hackathon.git)
 cd AIDeck-Hackathon
