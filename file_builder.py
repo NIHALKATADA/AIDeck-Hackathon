@@ -13,8 +13,7 @@ def hex_to_rgb(hex_code):
 
 def create_pptx(presentation_data, topic_name, theme_name, font_name, title_color_hex, bg_color_hex, text_color_hex):
     prs = Presentation()
-    prs.slide_width = Inches(13.333)
-    prs.slide_height = Inches(7.5)
+    prs.slide_width, prs.slide_height = Inches(13.333), Inches(7.5)
     
     theme_title_color = hex_to_rgb(title_color_hex)
     theme_bg_color = hex_to_rgb(bg_color_hex)
@@ -46,20 +45,19 @@ def create_pptx(presentation_data, topic_name, theme_name, font_name, title_colo
         t_p.font.name, t_p.font.size, t_p.font.bold = font_name, Pt(36), True
         t_p.font.color.rgb = theme_title_color
 
-        # --- AI IMAGE FETCHING ---
-        if slide_data.image_prompt:
-            img_url = f"https://image.pollinations.ai/prompt/{slide_data.image_prompt.replace(' ', '%20')}?width=1024&height=768&nologo=true"
+        # --- AI IMAGE GENERATION ---
+        if hasattr(slide_data, 'image_prompt') and slide_data.image_prompt:
+            img_url = f"https://image.pollinations.ai/prompt/{slide_data.image_prompt.replace(' ', '%20')}?nologo=true"
             try:
                 img_res = requests.get(img_url, timeout=10)
                 if img_res.status_code == 200:
-                    img_data = io.BytesIO(img_res.content)
-                    slide.shapes.add_picture(img_data, Inches(8.2), Inches(1.8), Inches(4.5), Inches(3.5))
+                    slide.shapes.add_picture(io.BytesIO(img_res.content), Inches(8.2), Inches(1.8), Inches(4.5), Inches(3.5))
             except:
                 pass 
 
-        # Bullets
+        # Bullets (Restored to Card Format)
         start_y = Inches(1.6)
-        for i, bullet in enumerate(slide_data.bullets[:5]):
+        for i, bullet in enumerate(slide_data.bullets[:5]): # Up to 5 bullets
             y_pos = start_y + (i * Inches(1.1))
             card = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), y_pos, Inches(7.0), Inches(0.9))
             card.fill.solid()
