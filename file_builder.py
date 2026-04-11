@@ -4,7 +4,6 @@ from pptx.util import Pt, Inches
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
 import io
-import requests
 
 def hex_to_rgb(hex_code):
     hex_code = hex_code.lstrip('#')
@@ -13,20 +12,39 @@ def hex_to_rgb(hex_code):
 
 def create_pptx(presentation_data, topic_name, theme_name, font_name, title_color_hex, bg_color_hex, text_color_hex):
     prs = Presentation()
-    prs.slide_width, prs.slide_height = Inches(13.333), Inches(7.5)
+    prs.slide_width = Inches(13.333)
+    prs.slide_height = Inches(7.5)
     
     theme_title_color = hex_to_rgb(title_color_hex)
     theme_bg_color = hex_to_rgb(bg_color_hex)
-    theme_text_color = RGBColor(255, 255, 255) if theme_name == "Dark Executive" else hex_to_rgb(text_color_hex)
+    
+    if theme_name == "Dark Executive":
+        theme_text_color = RGBColor(255, 255, 255)
+    else:
+        theme_text_color = hex_to_rgb(text_color_hex)
 
     def apply_slide_background(slide, color_rgb):
-        slide.background.fill.solid()
-        slide.background.fill.fore_color.rgb = color_rgb
+        background = slide.background
+        fill = background.fill
+        fill.solid()
+        fill.fore_color.rgb = color_rgb
 
     # --- TITLE SLIDE ---
-    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    title_slide_layout = prs.slide_layouts[6] 
+    slide = prs.slides.add_slide(title_slide_layout)
     apply_slide_background(slide, theme_bg_color)
     
+    if theme_name == "Breeze":
+        c1 = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(-2), Inches(3.5), Inches(6), Inches(6))
+        c1.fill.solid()
+        c1.fill.fore_color.rgb = hex_to_rgb("#E0F2FE")
+        c1.line.fill.background()
+    elif theme_name == "Dark Executive":
+        c1 = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(-3), Inches(-1), Inches(8), Inches(8))
+        c1.fill.solid()
+        c1.fill.fore_color.rgb = hex_to_rgb("#1E3A8A")
+        c1.line.fill.background()
+
     title_box = slide.shapes.add_textbox(Inches(1), Inches(2.5), Inches(11.3), Inches(2))
     p = title_box.text_frame.paragraphs[0]
     p.text = topic_name.title()
@@ -38,33 +56,25 @@ def create_pptx(presentation_data, topic_name, theme_name, font_name, title_colo
         slide = prs.slides.add_slide(prs.slide_layouts[6])
         apply_slide_background(slide, theme_bg_color)
         
-        # Header
         t_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.5), Inches(1))
         t_p = t_box.text_frame.paragraphs[0]
         t_p.text = slide_data.title
         t_p.font.name, t_p.font.size, t_p.font.bold = font_name, Pt(36), True
         t_p.font.color.rgb = theme_title_color
 
-        # --- AI IMAGE GENERATION ---
-        if hasattr(slide_data, 'image_prompt') and slide_data.image_prompt:
-            img_url = f"https://image.pollinations.ai/prompt/{slide_data.image_prompt.replace(' ', '%20')}?nologo=true"
-            try:
-                img_res = requests.get(img_url, timeout=10)
-                if img_res.status_code == 200:
-                    slide.shapes.add_picture(io.BytesIO(img_res.content), Inches(8.2), Inches(1.8), Inches(4.5), Inches(3.5))
-            except:
-                pass 
-
-        # Bullets (Restored to Card Format)
         start_y = Inches(1.6)
-        for i, bullet in enumerate(slide_data.bullets[:5]): # Up to 5 bullets
-            y_pos = start_y + (i * Inches(1.1))
-            card = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), y_pos, Inches(7.0), Inches(0.9))
+        for i, bullet in enumerate(slide_data.bullets[:6]):
+            col, row = i % 2, i // 2
+            x_pos = Inches(0.8) + (col * Inches(6.2))
+            y_pos = start_y + (row * Inches(1.9))
+            
+            card = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x_pos, y_pos, Inches(5.8), Inches(1.6))
             card.fill.solid()
             card.fill.fore_color.rgb = hex_to_rgb("#FFFFFF") if theme_name == "Breeze" else hex_to_rgb("#1E293B")
             card.line.fill.background()
             
-            tb = slide.shapes.add_textbox(Inches(1.0), y_pos + Inches(0.1), Inches(6.6), Inches(0.7))
+            tb = slide.shapes.add_textbox(x_pos + Inches(0.2), y_pos + Inches(0.1), Inches(5.4), Inches(1.4))
+            tb.text_frame.word_wrap = True
             p = tb.text_frame.paragraphs[0]
             p.text = bullet
             p.font.name, p.font.size, p.font.color.rgb = font_name, Pt(14), theme_text_color

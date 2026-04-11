@@ -3,10 +3,8 @@ import pandas as pd
 from ai_engine import generate_content, Slide, DataRow
 from file_builder import create_pptx, create_xlsx
 
-# 1. PAGE CONFIG
 st.set_page_config(page_title="AIDeck | AI File Agent", page_icon="🤖", layout="wide") 
 
-# 2. APP MEMORY
 if "ai_data" not in st.session_state:
     st.session_state.ai_data = None
 if "topic" not in st.session_state:
@@ -18,7 +16,6 @@ if "draft_version" not in st.session_state:
 if "cover_style" not in st.session_state:
     st.session_state.cover_style = "Modern Circle"
 
-# 3. LIVE PREVIEW ENGINES
 def render_cover_preview(title, theme_data, style):
     bg_col = theme_data.get("bg", "#FFFFFF")
     title_col = theme_data.get("color", "#0369A1")
@@ -60,7 +57,6 @@ def render_live_preview(title, bullets, theme_name, theme_data):
     </div>
     """
 
-# 4. SIDEBAR
 with st.sidebar:
     st.header("⚙️ Generation Settings")
     output_types = st.multiselect("What do you want to build?", ["Presentation (.pptx)", "Dataset (.xlsx)"])
@@ -79,7 +75,6 @@ with st.sidebar:
         st.error("API Key missing!")
         api_key = None
 
-# VIEW 1: Input Screen
 if st.session_state.ai_data is None:
     st.title("🤖 AIDeck")
     topic_input = st.text_input("Project Topic", placeholder="e.g. Artemis 2 Mission")
@@ -98,7 +93,6 @@ if st.session_state.ai_data is None:
         else:
             st.warning("Please enter a topic and select file types.")
 
-# VIEW 2: Review Screen
 else:
     st.header(f"Drafting: {st.session_state.topic.title()}")
     THEMES = {
@@ -111,7 +105,6 @@ else:
     if wants_ppt: tab_list += ["📝 Content", "🎨 Themes"]
     if wants_excel: tab_list += ["📊 Excel"]
     
-    # --- FAIL-SAFE CHECK ---
     if not tab_list:
         st.warning("⚠️ Please select at least one output type in the sidebar to view your draft.")
         st.stop()
@@ -142,6 +135,7 @@ else:
                         nt = st.text_input("Title", value=slide.title, key=f"t_{v_key}_{i}")
                         nb_raw = st.text_area("Bullets", value="\n".join(slide.bullets), key=f"b_{v_key}_{i}", height=180)
                         nb = [b.strip() for b in nb_raw.split("\n") if b.strip()]
+                        
                         edited_slides.append(Slide(title=nt, bullets=nb))
                     with c2:
                         st.markdown(render_live_preview(nt, nb, st.session_state.active_theme, THEMES[st.session_state.active_theme]), unsafe_allow_html=True)
